@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Autopůjčovna</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
@@ -13,8 +13,8 @@
       <h2>Auta</h2>
       <ul id="cars-list"></ul>
       <form id="car-form">
-        <input type="text" id="make" placeholder="Značka" required>
-        <input type="text" id="model" placeholder="Model" required>
+        <input type="text" id="make" placeholder="Značka" required />
+        <input type="text" id="model" placeholder="Model" required />
         <button type="submit">Přidat auto</button>
       </form>
     </section>
@@ -23,9 +23,9 @@
       <h2>Zákazníci</h2>
       <ul id="customers-list"></ul>
       <form id="customer-form">
-        <input type="text" id="firstname" placeholder="Jméno" required>
-        <input type="text" id="lastname" placeholder="Příjmení" required>
-        <input type="text" id="license" placeholder="Řidičák" required>
+        <input type="text" id="firstname" placeholder="Jméno" required />
+        <input type="text" id="lastname" placeholder="Příjmení" required />
+        <input type="text" id="license" placeholder="Řidičák" required />
         <button type="submit">Přidat zákazníka</button>
       </form>
     </section>
@@ -42,6 +42,7 @@
         li.textContent = `${car.make} ${car.model}`;
         const del = document.createElement('button');
         del.textContent = 'Smazat';
+        del.className = 'btn-delete';
         del.onclick = async () => {
           await fetch(`/api/cars/${car.id}`, { method: 'DELETE' });
           loadCars();
@@ -61,6 +62,7 @@
         li.textContent = `${c.firstname} ${c.lastname} (${c.driver_license})`;
         const del = document.createElement('button');
         del.textContent = 'Smazat';
+        del.className = 'btn-delete';
         del.onclick = async () => {
           await fetch(`/api/customers/${c.id}`, { method: 'DELETE' });
           loadCustomers();
@@ -72,8 +74,12 @@
 
     document.getElementById('car-form').onsubmit = async (e) => {
       e.preventDefault();
-      const make = document.getElementById('make').value;
-      const model = document.getElementById('model').value;
+      const make = document.getElementById('make').value.trim();
+      const model = document.getElementById('model').value.trim();
+      if (!make || !model) {
+        alert('Vyplňte značku a model auta.');
+        return;
+      }
       await fetch('/api/cars', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,9 +91,13 @@
 
     document.getElementById('customer-form').onsubmit = async (e) => {
       e.preventDefault();
-      const firstname = document.getElementById('firstname').value;
-      const lastname = document.getElementById('lastname').value;
-      const driver_license = document.getElementById('license').value;
+      const firstname = document.getElementById('firstname').value.trim();
+      const lastname = document.getElementById('lastname').value.trim();
+      const driver_license = document.getElementById('license').value.trim();
+      if (!firstname || !lastname || !driver_license) {
+        alert('Vyplňte všechny údaje zákazníka.');
+        return;
+      }
       await fetch('/api/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
