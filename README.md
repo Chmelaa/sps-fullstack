@@ -1,9 +1,7 @@
-Tomáš Chmela
-
 # Autopůjčovna (Fullstack projekt)
 
 ## Autor
-Tvé jméno zde
+Tomáš Chmela
 
 ## Bonusové point packy
 - Design: HTML + interaktivní JS formulář (10b)
