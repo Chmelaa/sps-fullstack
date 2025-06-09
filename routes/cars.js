@@ -18,15 +18,17 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
+  const { id } = req.params;
   const { make, model } = req.body;
-  db.run('UPDATE cars SET make = ?, model = ? WHERE id = ?', [make, model, req.params.id], function (err) {
+  db.run('UPDATE cars SET make = ?, model = ? WHERE id = ?', [make, model, id], function (err) {
     if (err) return res.status(500).json(err);
     res.json({ updated: this.changes });
   });
 });
 
 router.delete('/:id', (req, res) => {
-  db.run('DELETE FROM cars WHERE id = ?', [req.params.id], function (err) {
+  const { id } = req.params;
+  db.run('DELETE FROM cars WHERE id = ?', [id], function (err) {
     if (err) return res.status(500).json(err);
     res.json({ deleted: this.changes });
   });

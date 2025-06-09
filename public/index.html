@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Autopůjčovna</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -10,39 +10,95 @@
     <h1>Autopůjčovna</h1>
 
     <section>
-      <h2>Přidat auto</h2>
+      <h2>Auta</h2>
+      <ul id="cars-list"></ul>
       <form id="car-form">
         <input type="text" id="make" placeholder="Značka" required>
         <input type="text" id="model" placeholder="Model" required>
         <button type="submit">Přidat auto</button>
       </form>
-      <ul id="car-list"></ul>
     </section>
 
     <section>
-      <h2>Přidat zákazníka</h2>
+      <h2>Zákazníci</h2>
+      <ul id="customers-list"></ul>
       <form id="customer-form">
         <input type="text" id="firstname" placeholder="Jméno" required>
         <input type="text" id="lastname" placeholder="Příjmení" required>
-        <input type="text" id="driver_license" placeholder="Řidičák" required>
+        <input type="text" id="license" placeholder="Řidičák" required>
         <button type="submit">Přidat zákazníka</button>
       </form>
-      <ul id="customer-list"></ul>
-    </section>
-
-    <section>
-      <h2>Přidat výpůjčku</h2>
-      <form id="rental-form">
-        <input type="number" id="car_id" placeholder="ID auta" required>
-        <input type="number" id="customer_id" placeholder="ID zákazníka" required>
-        <input type="date" id="rental_date" required>
-        <input type="date" id="return_date" required>
-        <button type="submit">Přidat výpůjčku</button>
-      </form>
-      <ul id="rental-list"></ul>
     </section>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    async function loadCars() {
+      const res = await fetch('/api/cars');
+      const cars = await res.json();
+      const list = document.getElementById('cars-list');
+      list.innerHTML = '';
+      cars.forEach(car => {
+        const li = document.createElement('li');
+        li.textContent = `${car.make} ${car.model}`;
+        const del = document.createElement('button');
+        del.textContent = 'Smazat';
+        del.onclick = async () => {
+          await fetch(`/api/cars/${car.id}`, { method: 'DELETE' });
+          loadCars();
+        };
+        li.appendChild(del);
+        list.appendChild(li);
+      });
+    }
+
+    async function loadCustomers() {
+      const res = await fetch('/api/customers');
+      const customers = await res.json();
+      const list = document.getElementById('customers-list');
+      list.innerHTML = '';
+      customers.forEach(c => {
+        const li = document.createElement('li');
+        li.textContent = `${c.firstname} ${c.lastname} (${c.driver_license})`;
+        const del = document.createElement('button');
+        del.textContent = 'Smazat';
+        del.onclick = async () => {
+          await fetch(`/api/customers/${c.id}`, { method: 'DELETE' });
+          loadCustomers();
+        };
+        li.appendChild(del);
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('car-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const make = document.getElementById('make').value;
+      const model = document.getElementById('model').value;
+      await fetch('/api/cars', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ make, model })
+      });
+      e.target.reset();
+      loadCars();
+    };
+
+    document.getElementById('customer-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const firstname = document.getElementById('firstname').value;
+      const lastname = document.getElementById('lastname').value;
+      const driver_license = document.getElementById('license').value;
+      await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstname, lastname, driver_license })
+      });
+      e.target.reset();
+      loadCustomers();
+    };
+
+    loadCars();
+    loadCustomers();
+  </script>
 </body>
 </html>
