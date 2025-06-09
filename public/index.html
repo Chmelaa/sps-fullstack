@@ -6,7 +6,22 @@
   <link href="style.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Vítejte v autopůjčovně</h1>
-  <p>Seznam aut, zákazníků a výpůjček najdete v konzoli nebo pomocí Postmanu.</p>
+  <h1>Autopůjčovna</h1>
+
+  <section>
+    <h2>Přidat auto</h2>
+    <form id="car-form">
+      <input type="text" id="make" placeholder="Značka" required />
+      <input type="text" id="model" placeholder="Model" required />
+      <button type="submit">Přidat auto</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Seznam aut</h2>
+    <ul id="cars-list"></ul>
+  </section>
+
+  <script src="script.js"></script>
 </body>
 </html>
