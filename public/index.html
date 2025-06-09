@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Autopůjčovna</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
@@ -13,8 +13,8 @@
       <h2>Auta</h2>
       <ul id="cars-list"></ul>
       <form id="car-form">
-        <input type="text" id="make" placeholder="Značka" required />
-        <input type="text" id="model" placeholder="Model" required />
+        <input type="text" id="make" placeholder="Značka" required>
+        <input type="text" id="model" placeholder="Model" required>
         <button type="submit">Přidat auto</button>
       </form>
     </section>
@@ -23,10 +23,22 @@
       <h2>Zákazníci</h2>
       <ul id="customers-list"></ul>
       <form id="customer-form">
-        <input type="text" id="firstname" placeholder="Jméno" required />
-        <input type="text" id="lastname" placeholder="Příjmení" required />
-        <input type="text" id="license" placeholder="Řidičák" required />
+        <input type="text" id="firstname" placeholder="Jméno" required>
+        <input type="text" id="lastname" placeholder="Příjmení" required>
+        <input type="text" id="license" placeholder="Řidičák" required>
         <button type="submit">Přidat zákazníka</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Výpůjčky</h2>
+      <ul id="rentals-list"></ul>
+      <form id="rental-form">
+        <select id="customer_id" required></select>
+        <select id="car_id" required></select>
+        <input type="date" id="rental_date" required>
+        <input type="date" id="return_date" required>
+        <button type="submit">Přidat výpůjčku</button>
       </form>
     </section>
   </div>
@@ -36,19 +48,44 @@
       const res = await fetch('/api/cars');
       const cars = await res.json();
       const list = document.getElementById('cars-list');
+      const select = document.getElementById('car_id');
       list.innerHTML = '';
+      select.innerHTML = '';
       cars.forEach(car => {
         const li = document.createElement('li');
-        li.textContent = `${car.make} ${car.model}`;
+        const span = document.createElement('span');
+        span.textContent = `${car.id}: ${car.make} ${car.model}`;
+        li.appendChild(span);
+
+        const edit = document.createElement('button');
+        edit.textContent = 'Upravit';
+        edit.onclick = async () => {
+          const make = prompt('Zadej novou značku:', car.make);
+          const model = prompt('Zadej nový model:', car.model);
+          if (make && model) {
+            await fetch(`/api/cars/${car.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ make, model })
+            });
+            loadCars();
+          }
+        };
+        li.appendChild(edit);
+
         const del = document.createElement('button');
         del.textContent = 'Smazat';
-        del.className = 'btn-delete';
         del.onclick = async () => {
           await fetch(`/api/cars/${car.id}`, { method: 'DELETE' });
           loadCars();
         };
         li.appendChild(del);
         list.appendChild(li);
+
+        const option = document.createElement('option');
+        option.value = car.id;
+        option.textContent = `${car.make} ${car.model}`;
+        select.appendChild(option);
       });
     }
 
@@ -56,16 +93,64 @@
       const res = await fetch('/api/customers');
       const customers = await res.json();
       const list = document.getElementById('customers-list');
+      const select = document.getElementById('customer_id');
       list.innerHTML = '';
+      select.innerHTML = '';
       customers.forEach(c => {
         const li = document.createElement('li');
-        li.textContent = `${c.firstname} ${c.lastname} (${c.driver_license})`;
+        const span = document.createElement('span');
+        span.textContent = `${c.id}: ${c.firstname} ${c.lastname} (${c.driver_license})`;
+        li.appendChild(span);
+
+        const edit = document.createElement('button');
+        edit.textContent = 'Upravit';
+        edit.onclick = async () => {
+          const firstname = prompt('Jméno:', c.firstname);
+          const lastname = prompt('Příjmení:', c.lastname);
+          const driver_license = prompt('Řidičák:', c.driver_license);
+          if (firstname && lastname && driver_license) {
+            await fetch(`/api/customers/${c.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ firstname, lastname, driver_license })
+            });
+            loadCustomers();
+          }
+        };
+        li.appendChild(edit);
+
         const del = document.createElement('button');
         del.textContent = 'Smazat';
-        del.className = 'btn-delete';
         del.onclick = async () => {
           await fetch(`/api/customers/${c.id}`, { method: 'DELETE' });
           loadCustomers();
+        };
+        li.appendChild(del);
+        list.appendChild(li);
+
+        const option = document.createElement('option');
+        option.value = c.id;
+        option.textContent = `${c.firstname} ${c.lastname}`;
+        select.appendChild(option);
+      });
+    }
+
+    async function loadRentals() {
+      const res = await fetch('/api/rentals');
+      const rentals = await res.json();
+      const list = document.getElementById('rentals-list');
+      list.innerHTML = '';
+      rentals.forEach(r => {
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        span.textContent = `${r.id}: ${r.customer} si půjčil ${r.car} od ${r.rental_date} do ${r.return_date}`;
+        li.appendChild(span);
+
+        const del = document.createElement('button');
+        del.textContent = 'Smazat';
+        del.onclick = async () => {
+          await fetch(`/api/rentals/${r.id}`, { method: 'DELETE' });
+          loadRentals();
         };
         li.appendChild(del);
         list.appendChild(li);
@@ -74,12 +159,8 @@
 
     document.getElementById('car-form').onsubmit = async (e) => {
       e.preventDefault();
-      const make = document.getElementById('make').value.trim();
-      const model = document.getElementById('model').value.trim();
-      if (!make || !model) {
-        alert('Vyplňte značku a model auta.');
-        return;
-      }
+      const make = document.getElementById('make').value;
+      const model = document.getElementById('model').value;
       await fetch('/api/cars', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -91,13 +172,9 @@
 
     document.getElementById('customer-form').onsubmit = async (e) => {
       e.preventDefault();
-      const firstname = document.getElementById('firstname').value.trim();
-      const lastname = document.getElementById('lastname').value.trim();
-      const driver_license = document.getElementById('license').value.trim();
-      if (!firstname || !lastname || !driver_license) {
-        alert('Vyplňte všechny údaje zákazníka.');
-        return;
-      }
+      const firstname = document.getElementById('firstname').value;
+      const lastname = document.getElementById('lastname').value;
+      const driver_license = document.getElementById('license').value;
       await fetch('/api/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,8 +184,24 @@
       loadCustomers();
     };
 
+    document.getElementById('rental-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const customer_id = document.getElementById('customer_id').value;
+      const car_id = document.getElementById('car_id').value;
+      const rental_date = document.getElementById('rental_date').value;
+      const return_date = document.getElementById('return_date').value;
+      await fetch('/api/rentals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_id, car_id, rental_date, return_date })
+      });
+      e.target.reset();
+      loadRentals();
+    };
+
     loadCars();
     loadCustomers();
+    loadRentals();
   </script>
 </body>
 </html>
