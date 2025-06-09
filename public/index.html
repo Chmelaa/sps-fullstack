@@ -1,29 +1,48 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Autopůjčovna</title>
-  <link href="style.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
+  <div class="container">
     <h1>Autopůjčovna</h1>
-  </header>
-  <main>
-    <h2>Přidat auto</h2>
-    <form id="addCarForm">
-      <label for="make">Značka:</label>
-      <input type="text" id="make" name="make" required />
 
-      <label for="model">Model:</label>
-      <input type="text" id="model" name="model" required />
+    <section>
+      <h2>Přidat auto</h2>
+      <form id="car-form">
+        <input type="text" id="make" placeholder="Značka" required>
+        <input type="text" id="model" placeholder="Model" required>
+        <button type="submit">Přidat auto</button>
+      </form>
+      <ul id="car-list"></ul>
+    </section>
 
-      <button type="submit">Přidat auto</button>
-    </form>
+    <section>
+      <h2>Přidat zákazníka</h2>
+      <form id="customer-form">
+        <input type="text" id="firstname" placeholder="Jméno" required>
+        <input type="text" id="lastname" placeholder="Příjmení" required>
+        <input type="text" id="driver_license" placeholder="Řidičák" required>
+        <button type="submit">Přidat zákazníka</button>
+      </form>
+      <ul id="customer-list"></ul>
+    </section>
 
-    <h2>Seznam aut</h2>
-    <ul id="carList"></ul>
-  </main>
+    <section>
+      <h2>Přidat výpůjčku</h2>
+      <form id="rental-form">
+        <input type="number" id="car_id" placeholder="ID auta" required>
+        <input type="number" id="customer_id" placeholder="ID zákazníka" required>
+        <input type="date" id="rental_date" required>
+        <input type="date" id="return_date" required>
+        <button type="submit">Přidat výpůjčku</button>
+      </form>
+      <ul id="rental-list"></ul>
+    </section>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
