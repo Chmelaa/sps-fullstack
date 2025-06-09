@@ -17,4 +17,19 @@ router.post('/', (req, res) => {
   });
 });
 
+router.put('/:id', (req, res) => {
+  const { firstname, lastname, driver_license } = req.body;
+  db.run('UPDATE customers SET firstname = ?, lastname = ?, driver_license = ? WHERE id = ?', [firstname, lastname, driver_license, req.params.id], function (err) {
+    if (err) return res.status(500).json(err);
+    res.json({ updated: this.changes });
+  });
+});
+
+router.delete('/:id', (req, res) => {
+  db.run('DELETE FROM customers WHERE id = ?', [req.params.id], function (err) {
+    if (err) return res.status(500).json(err);
+    res.json({ deleted: this.changes });
+  });
+});
+
 module.exports = router;
